@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { format, parseISO, isValid } from 'date-fns';
+import DatePicker from 'react-datepicker';
+import { CalendarIcon } from '@heroicons/react/24/outline';
+import 'react-datepicker/dist/react-datepicker.css';
 
 interface DateRange {
   minDate: string;
@@ -105,29 +108,49 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
           <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-1">
             Start Date
           </label>
-          <input
-            type="date"
-            id="start-date"
-            value={startDate}
-            min={availableRange.minDate}
-            max={availableRange.maxDate}
-            onChange={(e) => handleStartDateChange(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
-          />
+          <div className="relative">
+            <DatePicker
+              id="start-date"
+              selected={startDate ? parseISO(startDate) : null}
+              onChange={(date) => {
+                const dateStr = date ? format(date, 'yyyy-MM-dd') : '';
+                handleStartDateChange(dateStr);
+              }}
+              minDate={parseISO(availableRange.minDate)}
+              maxDate={parseISO(availableRange.maxDate)}
+              dateFormat="MMM dd, yyyy"
+              placeholderText="Select start date"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm pl-3 pr-10 py-2"
+              wrapperClassName="w-full"
+              popperClassName="react-datepicker-popper"
+              calendarClassName="react-datepicker-calendar"
+            />
+            <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
         </div>
         <div>
           <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">
             End Date
           </label>
-          <input
-            type="date"
-            id="end-date"
-            value={endDate}
-            min={availableRange.minDate}
-            max={availableRange.maxDate}
-            onChange={(e) => handleEndDateChange(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
-          />
+          <div className="relative">
+            <DatePicker
+              id="end-date"
+              selected={endDate ? parseISO(endDate) : null}
+              onChange={(date) => {
+                const dateStr = date ? format(date, 'yyyy-MM-dd') : '';
+                handleEndDateChange(dateStr);
+              }}
+              minDate={parseISO(availableRange.minDate)}
+              maxDate={parseISO(availableRange.maxDate)}
+              dateFormat="MMM dd, yyyy"
+              placeholderText="Select end date"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm pl-3 pr-10 py-2"
+              wrapperClassName="w-full"
+              popperClassName="react-datepicker-popper"
+              calendarClassName="react-datepicker-calendar"
+            />
+            <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
         </div>
       </div>
 
@@ -138,33 +161,33 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
         </div>
       )}
 
-      {/* Preset Buttons */}
-      <div className="flex flex-wrap gap-2">
+      {/* Preset Buttons as Segmented Control */}
+      <div className="inline-flex rounded-md shadow-sm border border-gray-200 overflow-hidden">
         <button
           type="button"
           onClick={() => setPresetRange(7)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           Last 7 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(30)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last 30 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(90)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last 90 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(365)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last year
         </button>
