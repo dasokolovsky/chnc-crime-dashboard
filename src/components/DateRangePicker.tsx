@@ -112,7 +112,7 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
             min={availableRange.minDate}
             max={availableRange.maxDate}
             onChange={(e) => handleStartDateChange(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
           />
         </div>
         <div>
@@ -126,7 +126,7 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
             min={availableRange.minDate}
             max={availableRange.maxDate}
             onChange={(e) => handleEndDateChange(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
           />
         </div>
       </div>
