@@ -225,9 +225,10 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
       {/* Table */}
       <div className="bg-white border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
+          <div className="max-h-[60vh] overflow-y-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50 sticky top-0 z-10 shadow">
+                <tr>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('date_occ')}
@@ -271,8 +272,8 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {paginatedData.map((record, index) => (
-                <tr key={record.uniquenibrno} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <tr key={record.uniquenibrno} className={index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 hover:bg-gray-100'}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
                     {format(parseISO(record.date_occ), 'MMM dd, yyyy')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -330,6 +331,7 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Pagination */}

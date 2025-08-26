@@ -5,6 +5,7 @@ import DateRangePicker from '@/components/DateRangePicker';
 import HollywoodMap from '@/components/HollywoodMap';
 import CrimeDashboard from '@/components/CrimeDashboard';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { ArrowRightCircleIcon } from '@heroicons/react/24/solid';
 
 interface DateRange {
   minDate: string;
@@ -130,9 +131,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Top Meta Bar */}
+      <div className="bg-gradient-to-r from-blue-50 via-emerald-50 to-blue-50 border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs text-gray-600 flex items-center justify-between">
+          <span>Data source: LA City Open Data (LAPD NIBRS)</span>
+          <a href="https://dev.socrata.com/foundry/data.lacity.org/y8y3-fqfu" target="_blank" rel="noreferrer" className="text-emerald-700 hover:text-emerald-800">View dataset →</a>
+        </div>
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <header className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
@@ -190,7 +199,7 @@ export default function Home() {
             <button
               onClick={handleGenerateReport}
               disabled={!selectedDateRange || loading}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -198,7 +207,10 @@ export default function Home() {
                   Generating Report...
                 </>
               ) : (
-                'Generate Crime Report'
+                <>
+                  Generate Crime Report
+                  <ArrowRightCircleIcon className="ml-2 h-5 w-5 text-white/90" />
+                </>
               )}
             </button>
           </div>

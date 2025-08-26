@@ -138,33 +138,33 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
         </div>
       )}
 
-      {/* Preset Buttons */}
-      <div className="flex flex-wrap gap-2">
+      {/* Preset Buttons as Segmented Control */}
+      <div className="inline-flex rounded-md shadow-sm border border-gray-200 overflow-hidden">
         <button
           type="button"
           onClick={() => setPresetRange(7)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           Last 7 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(30)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last 30 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(90)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last 90 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(365)}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last year
         </button>

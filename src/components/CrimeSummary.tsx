@@ -68,44 +68,38 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
     <div className="space-y-8">
       {/* Key Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-blue-50 rounded-lg p-6">
+        <div className="rounded-lg p-6 bg-gradient-to-br from-emerald-50 to-blue-50 border border-emerald-100">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">📊</span>
-              </div>
+              <div className="w-8 h-8 bg-emerald-600 rounded-md flex items-center justify-center text-white">📊</div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-blue-600">Total Incidents</p>
-              <p className="text-2xl font-bold text-blue-900">{stats.totalCrimes.toLocaleString()}</p>
+              <p className="text-sm font-medium text-emerald-700">Total Incidents</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalCrimes.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-red-50 rounded-lg p-6">
+        <div className="rounded-lg p-6 bg-gradient-to-br from-rose-50 to-red-50 border border-rose-100">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">🚨</span>
-              </div>
+              <div className="w-8 h-8 bg-rose-600 rounded-md flex items-center justify-center text-white">🚨</div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-red-600">Domestic Violence</p>
-              <p className="text-2xl font-bold text-red-900">{stats.specialCrimes.domesticViolence}</p>
+              <p className="text-sm font-medium text-rose-700">Domestic Violence</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.specialCrimes.domesticViolence}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-green-50 rounded-lg p-6">
+        <div className="rounded-lg p-6 bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-100">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">✅</span>
-              </div>
+              <div className="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center text-white">✅</div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-green-600">Cleared Cases</p>
-              <p className="text-2xl font-bold text-green-900">
+              <p className="text-sm font-medium text-green-700">Cleared Cases</p>
+              <p className="text-3xl font-bold text-gray-900">
                 {Object.entries(stats.statuses)
                   .filter(([status]) => status.includes('Cleared'))
                   .reduce((sum, [, count]) => sum + count, 0)}
@@ -114,16 +108,14 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
           </div>
         </div>
 
-        <div className="bg-purple-50 rounded-lg p-6">
+        <div className="rounded-lg p-6 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">🏠</span>
-              </div>
+              <div className="w-8 h-8 bg-violet-600 rounded-md flex items-center justify-center text-white">🏠</div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-purple-600">Homeless Related</p>
-              <p className="text-2xl font-bold text-purple-900">
+              <p className="text-sm font-medium text-violet-700">Homeless Related</p>
+              <p className="text-3xl font-bold text-gray-900">
                 {stats.specialCrimes.homelessVictim + stats.specialCrimes.homelessSuspect}
               </p>
             </div>
@@ -137,24 +129,25 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
         <div className="bg-white border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Crime Types</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topCrimeTypes} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="name" 
+            <BarChart data={topCrimeTypes} margin={{ top: 20, right: 16, left: 8, bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis
+                dataKey="name"
                 angle={-45}
                 textAnchor="end"
                 height={80}
                 fontSize={12}
               />
-              <YAxis />
+              <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: '#e5e7eb' }} />
               <Tooltip
+                contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }}
                 formatter={(value) => [value, 'Count']}
                 labelFormatter={(label) => {
                   const item = topCrimeTypes.find(d => d.name === label);
                   return item?.fullName || label;
                 }}
               />
-              <Bar dataKey="count" fill="#3b82f6" />
+              <Bar dataKey="count" fill="#059669" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -171,14 +164,14 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
                 labelLine={false}
                 label={({ name, percentage }) => `${name}: ${percentage}%`}
                 outerRadius={80}
-                fill="#8884d8"
+                fill="#10b981"
                 dataKey="value"
               >
                 {crimeAgainstData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [value, 'Count']} />
+              <Tooltip formatter={(value) => [value, 'Count']} contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -213,24 +206,25 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Crime Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={dailyTrendData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis
                 dataKey="formattedDate"
                 fontSize={12}
               />
-              <YAxis />
-              <Tooltip 
+              <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: '#e5e7eb' }} />
+              <Tooltip
                 labelFormatter={(label) => {
                   const item = dailyTrendData.find(d => d.formattedDate === label);
-                  return item ? new Date(item.date).toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                  return item ? new Date(item.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                   }) : label;
                 }}
+                contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }}
               />
-              <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} />
+              <Line type="monotone" dataKey="count" stroke="#059669" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
