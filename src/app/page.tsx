@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
+import { ChartBarIcon, CalendarIcon, DocumentChartBarIcon } from '@heroicons/react/24/outline';
 import DateRangePicker from '@/components/DateRangePicker';
 import HollywoodMap from '@/components/HollywoodMap';
 import CrimeDashboard from '@/components/CrimeDashboard';
@@ -163,14 +164,22 @@ export default function Home() {
         )}
 
         {/* Controls Section */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Generate Crime Report</h2>
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-200 p-8 mb-8">
+          {/* Header Section */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center text-sm text-gray-600">
+              <span>Source: LA City Open Data (LAPD NIBRS)</span>
+              <span className="mx-2">•</span>
+              <span>Available: {availableDateRange ? `${format(parseISO(availableDateRange.minDate), 'MMM dd, yyyy')} – ${format(parseISO(availableDateRange.maxDate), 'MMM dd, yyyy')}` : '—'}</span>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Date Range Picker */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Select Date Range</h3>
-              <p className="text-sm text-gray-700 mb-3">Source: LA City Open Data (LAPD NIBRS). Available: {availableDateRange ? `${format(parseISO(availableDateRange.minDate), 'MMM dd, yyyy')} – ${format(parseISO(availableDateRange.maxDate), 'MMM dd, yyyy')}` : '—'}</p>
+              <div className="flex items-center mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Date Range</h3>
+              </div>
               {availableDateRange ? (
                 <DateRangePicker
                   availableRange={availableDateRange}
@@ -178,37 +187,37 @@ export default function Home() {
                   onChange={handleDateRangeChange}
                 />
               ) : (
-                <div className="animate-pulse bg-gray-200 h-20 rounded"></div>
+                <div className="animate-pulse bg-gray-200 h-20 rounded-lg"></div>
               )}
             </div>
 
             {/* Hollywood Districts Map */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Coverage Area</h3>
+              <div className="flex items-center mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Coverage Area</h3>
+              </div>
               <HollywoodMap />
             </div>
           </div>
 
           {/* Generate Report Button */}
-          <div className="mt-6 flex flex-col items-center gap-3">
+          <div className="mt-8 text-center">
             <button
               onClick={handleGenerateReport}
               disabled={!selectedDateRange || loading}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center px-8 py-4 text-lg font-semibold rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-600"
             >
               {loading ? (
                 <>
-                  <LoadingSpinner className="mr-2" />
+                  <LoadingSpinner className="mr-3" />
                   Generating Report...
                 </>
               ) : (
-                'Generate Crime Report'
+                <>
+                  Generate Report
+                </>
               )}
             </button>
-            <p className="text-xs text-gray-700 text-center max-w-2xl">
-              How to use: Choose a start and end date or a preset range, then click “Generate Crime Report” to view the summary and details below.
-              Data last updated: <span className="font-medium">{availableDateRange?.maxDate}</span>.
-            </p>
           </div>
         </div>
 

@@ -72,7 +72,6 @@ const CHNC_BOUNDARY_DATA = {
 export default function HollywoodMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
 
   // Use the districts data directly - no API needed for just 7 districts
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -162,12 +161,7 @@ export default function HollywoodMap() {
             ['==', ['get', 'REPDIST'], 676], DISTRICT_COLORS['676'],
             '#6b7280' // Default gray
           ],
-          'fill-opacity': [
-            'case',
-            ['==', ['get', 'REPDIST'], ['literal', selectedDistrict ? parseInt(selectedDistrict) : -1]],
-            0.8,
-            0.6
-          ],
+          'fill-opacity': 0.6,
         },
       });
 
@@ -183,7 +177,30 @@ export default function HollywoodMap() {
         },
       });
 
-      // Add district labels
+      // Add CHNC boundary data source
+      map.current.addSource('chnc-boundary', {
+        type: 'geojson',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: CHNC_BOUNDARY_DATA as any,
+      });
+
+      // Add CHNC boundary layer (below labels so it doesn't overlap text)
+      map.current.addLayer({
+        id: 'chnc-boundary',
+        type: 'line',
+        source: 'chnc-boundary',
+        paint: {
+          'line-color': '#0288d1', // Blue color from the original GeoJSON
+          'line-width': 3,
+          'line-opacity': 1,
+        },
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+        },
+      });
+
+      // Add district labels (above boundary so text is always visible)
       map.current.addLayer({
         id: 'districts-labels',
         type: 'symbol',
@@ -201,56 +218,7 @@ export default function HollywoodMap() {
         },
       });
 
-      // Add CHNC boundary data source
-      map.current.addSource('chnc-boundary', {
-        type: 'geojson',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data: CHNC_BOUNDARY_DATA as any,
-      });
-
-      // Add CHNC boundary layer (above districts, but non-interactive)
-      map.current.addLayer({
-        id: 'chnc-boundary',
-        type: 'line',
-        source: 'chnc-boundary',
-        paint: {
-          'line-color': '#0288d1', // Blue color from the original GeoJSON
-          'line-width': 3,
-          'line-opacity': 1,
-        },
-        layout: {
-          'line-cap': 'round',
-          'line-join': 'round',
-        },
-      });
-
-      // Disable pointer events on CHNC boundary so clicks pass through to districts
-      map.current.on('mouseenter', 'chnc-boundary', () => {
-        if (map.current) {
-          map.current.getCanvas().style.cursor = '';
-        }
-      });
-
-      // Add click handler for districts
-      map.current.on('click', 'districts-fill', (e) => {
-        if (e.features && e.features[0]) {
-          const district = e.features[0].properties?.REPDIST?.toString();
-          setSelectedDistrict(district === selectedDistrict ? null : district);
-        }
-      });
-
-      // Change cursor on hover
-      map.current.on('mouseenter', 'districts-fill', () => {
-        if (map.current) {
-          map.current.getCanvas().style.cursor = 'pointer';
-        }
-      });
-
-      map.current.on('mouseleave', 'districts-fill', () => {
-        if (map.current) {
-          map.current.getCanvas().style.cursor = '';
-        }
-      });
+      // No click handlers - districts are not interactive
     });
 
     return () => {
@@ -259,46 +227,12 @@ export default function HollywoodMap() {
         map.current = null;
       }
     };
-  }, [districtsData, selectedDistrict]);
-
-  // Update fill opacity when selectedDistrict changes
-  useEffect(() => {
-    if (map.current && map.current.getLayer('districts-fill')) {
-      map.current.setPaintProperty('districts-fill', 'fill-opacity', [
-        'case',
-        ['==', ['get', 'REPDIST'], ['literal', selectedDistrict ? parseInt(selectedDistrict) : -1]],
-        0.8,
-        0.6
-      ]);
-    }
-  }, [selectedDistrict]);
+  }, [districtsData]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="relative">
         <div ref={mapContainer} className="w-full h-80 rounded-lg overflow-hidden shadow-sm border border-gray-200" />
-
-        {/* District Info Panel */}
-        {selectedDistrict && (
-          <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
-            <div className="flex items-center gap-3">
-              <div
-                className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
-                style={{ backgroundColor: DISTRICT_COLORS[selectedDistrict] }}
-              />
-              <div>
-                <h3 className="font-semibold text-gray-900">District {selectedDistrict}</h3>
-                <p className="text-sm text-gray-800">{DISTRICT_NAMES[selectedDistrict]}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setSelectedDistrict(null)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-            >
-              ×
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Legend */}
@@ -333,7 +267,7 @@ export default function HollywoodMap() {
       </div>
 
       <p className="text-xs text-gray-700 mt-4">
-        All districts are within the Hollywood area (Area 6) of the LAPD. Click districts to highlight.
+        All districts are within the Hollywood area (Area 6) of the LAPD. Blue boundary shows CHNC coverage area.
       </p>
     </div>
   );

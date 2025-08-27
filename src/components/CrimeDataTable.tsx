@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
+import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 interface CrimeRecord {
   area: string;
@@ -52,26 +53,50 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
 
-  // Get unique values for filters
-  const uniqueDistricts = useMemo(() =>
-    [...new Set(data.map(record => record.rpt_dist_no))].sort(),
-    [data]
-  );
+  // Get unique values for filters with counts
+  const uniqueDistricts = useMemo(() => {
+    const counts = data.reduce((acc, record) => {
+      acc[record.rpt_dist_no] = (acc[record.rpt_dist_no] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
-  const uniqueCrimeTypes = useMemo(() =>
-    [...new Set(data.map(record => record.nibr_description))].sort(),
-    [data]
-  );
+    return Object.entries(counts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([district, count]) => ({ value: district, count }));
+  }, [data]);
 
-  const uniqueStatuses = useMemo(() =>
-    [...new Set(data.map(record => record.status_desc))].sort(),
-    [data]
-  );
+  const uniqueCrimeTypes = useMemo(() => {
+    const counts = data.reduce((acc, record) => {
+      acc[record.nibr_description] = (acc[record.nibr_description] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
-  const uniqueLocations = useMemo(() =>
-    [...new Set(data.map(record => record.premis_desc))].sort(),
-    [data]
-  );
+    return Object.entries(counts)
+      .sort(([,a], [,b]) => b - a) // Sort by count descending
+      .map(([type, count]) => ({ value: type, count }));
+  }, [data]);
+
+  const uniqueStatuses = useMemo(() => {
+    const counts = data.reduce((acc, record) => {
+      acc[record.status_desc] = (acc[record.status_desc] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(counts)
+      .sort(([,a], [,b]) => b - a) // Sort by count descending
+      .map(([status, count]) => ({ value: status, count }));
+  }, [data]);
+
+  const uniqueLocations = useMemo(() => {
+    const counts = data.reduce((acc, record) => {
+      acc[record.premis_desc] = (acc[record.premis_desc] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(counts)
+      .sort(([,a], [,b]) => b - a) // Sort by count descending
+      .map(([location, count]) => ({ value: location, count }));
+  }, [data]);
 
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
@@ -147,92 +172,109 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Search</label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder="Search all fields..."
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900 placeholder:text-gray-600"
-            />
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Search</label>
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Search all fields..."
+                className="block w-full pl-10 pr-3 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 focus:ring-opacity-20 sm:text-sm text-gray-900 placeholder:text-gray-500 bg-white transition-all duration-200"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">District</label>
-            <select
-              value={selectedDistrict}
-              onChange={(e) => {
-                setSelectedDistrict(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
-            >
-              <option value="">All Districts</option>
-              {uniqueDistricts.map(district => (
-                <option key={district} value={district}>District {district}</option>
-              ))}
-            </select>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">District</label>
+            <div className="relative">
+              <select
+                value={selectedDistrict}
+                onChange={(e) => {
+                  setSelectedDistrict(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="block w-full py-2.5 pl-3 pr-10 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 focus:ring-opacity-20 sm:text-sm text-gray-900 bg-white appearance-none transition-all duration-200 cursor-pointer hover:border-gray-400"
+              >
+                <option value="">All Districts ({data.length})</option>
+                {uniqueDistricts.map(({ value: district, count }) => (
+                  <option key={district} value={district}>
+                    District {district} ({count})
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Crime Type</label>
-            <select
-              value={selectedCrimeType}
-              onChange={(e) => {
-                setSelectedCrimeType(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
-            >
-              <option value="">All Crime Types</option>
-
-
-              {uniqueCrimeTypes.map(type => (
-                <option key={type} value={type}>
-                  {type.length > 50 ? type.substring(0, 50) + '...' : type}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Crime Type</label>
+            <div className="relative">
+              <select
+                value={selectedCrimeType}
+                onChange={(e) => {
+                  setSelectedCrimeType(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="block w-full py-2.5 pl-3 pr-10 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 focus:ring-opacity-20 sm:text-sm text-gray-900 bg-white appearance-none transition-all duration-200 cursor-pointer hover:border-gray-400"
+              >
+                <option value="">All Crime Types ({data.length})</option>
+                {uniqueCrimeTypes.map(({ value: type, count }) => (
+                  <option key={type} value={type} title={type}>
+                    {type.length > 35 ? type.substring(0, 35) + '...' : type} ({count})
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Status</label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
-            >
-              <option value="">All Statuses</option>
-              {uniqueStatuses.map(status => (
-                <option key={status} value={status}>{status}</option>
-              ))}
-            </select>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Status</label>
+            <div className="relative">
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="block w-full py-2.5 pl-3 pr-10 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 focus:ring-opacity-20 sm:text-sm text-gray-900 bg-white appearance-none transition-all duration-200 cursor-pointer hover:border-gray-400"
+              >
+                <option value="">All Statuses ({data.length})</option>
+                {uniqueStatuses.map(({ value: status, count }) => (
+                  <option key={status} value={status}>{status} ({count})</option>
+                ))}
+              </select>
+              <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Location</label>
-            <select
-              value={selectedLocation}
-              onChange={(e) => {
-                setSelectedLocation(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
-            >
-              <option value="">All Locations</option>
-              {uniqueLocations.map(loc => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
-            </select>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Location</label>
+            <div className="relative">
+              <select
+                value={selectedLocation}
+                onChange={(e) => {
+                  setSelectedLocation(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="block w-full py-2.5 pl-3 pr-10 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 focus:ring-opacity-20 sm:text-sm text-gray-900 bg-white appearance-none transition-all duration-200 cursor-pointer hover:border-gray-400"
+              >
+                <option value="">All Locations ({data.length})</option>
+                {uniqueLocations.map(({ value: loc, count }) => (
+                  <option key={loc} value={loc} title={loc}>
+                    {loc.length > 30 ? loc.substring(0, 30) + '...' : loc} ({count})
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
         </div>
 
@@ -361,46 +403,49 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 flex items-center justify-between border-t border-gray-200 rounded-b-lg">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                className="relative inline-flex items-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all duration-200"
               >
                 Previous
               </button>
               <button
                 onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                className="ml-3 relative inline-flex items-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all duration-200"
               >
                 Next
               </button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div className="flex items-center space-x-2">
-                <label className="text-sm text-gray-700">Show</label>
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="border-gray-300 rounded-md text-sm"
-                >
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-                <label className="text-sm text-gray-700">per page</label>
+              <div className="flex items-center space-x-3">
+                <label className="text-sm font-medium text-gray-900">Show</label>
+                <div className="relative">
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="py-2 pl-3 pr-10 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 focus:ring-opacity-20 text-sm text-gray-900 bg-white appearance-none transition-all duration-200 cursor-pointer hover:border-gray-400"
+                  >
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                </div>
+                <label className="text-sm font-medium text-gray-900">per page</label>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <nav className="relative z-0 inline-flex rounded-lg shadow-sm space-x-1" aria-label="Pagination">
                   <button
                     onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                    className="relative inline-flex items-center px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all duration-200"
                   >
                     Previous
                   </button>
@@ -412,10 +457,10 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        className={`relative inline-flex items-center px-4 py-2.5 rounded-lg border text-sm font-medium shadow-sm transition-all duration-200 ${
                           pageNum === currentPage
-                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            ? 'z-10 bg-emerald-50 border-emerald-500 text-emerald-700 ring-2 ring-emerald-500 ring-opacity-20'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
                         }`}
                       >
                         {pageNum}
@@ -426,7 +471,7 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
                   <button
                     onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                    className="relative inline-flex items-center px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all duration-200"
                   >
                     Next
                   </button>

@@ -29,7 +29,29 @@ interface CrimeSummaryProps {
   stats: SummaryStats;
 }
 
-const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6b7280'];
+const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#84cc16'];
+
+// District names mapping
+const DISTRICT_NAMES: { [key: string]: string } = {
+  '645': 'Hollywood Core',
+  '646': 'Central Hollywood',
+  '647': 'Hollywood North',
+  '656': 'Hollywood South',
+  '663': 'Hollywood East',
+  '666': 'Hollywood West',
+  '676': 'Hollywood Fringe',
+};
+
+// Status color mapping with distinct colors
+const getStatusColor = (status: string) => {
+  if (status.includes('Cleared by Arrest')) return '#10b981'; // Green
+  if (status.includes('Cleared Other')) return '#3b82f6'; // Blue
+  if (status.includes('Investigation')) return '#f59e0b'; // Orange
+  if (status.includes('Open')) return '#ef4444'; // Red
+  if (status.includes('Attorney')) return '#6b7280'; // Gray
+  if (status.includes('Unfounded')) return '#8b5cf6'; // Purple
+  return '#14b8a6'; // Teal for others
+};
 
 export default function CrimeSummary({ stats }: CrimeSummaryProps) {
   // Prepare data for charts
@@ -46,11 +68,14 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
     .sort(([,a], [,b]) => b - a)
     .map(([district, count]) => ({
       district,
+      districtName: DISTRICT_NAMES[district] || `District ${district}`,
+      displayName: `${district} - ${DISTRICT_NAMES[district] || 'Unknown'}`,
       count,
       percentage: ((count / stats.totalCrimes) * 100).toFixed(1)
     }));
 
   const crimeAgainstData = Object.entries(stats.crimeAgainst)
+    .sort(([,a], [,b]) => b - a)
     .map(([type, count]) => ({
       name: type,
       value: count,
@@ -83,10 +108,15 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
       formattedWeek: format(parseISO(weekStart), 'MMM dd')
     }));
 
-  // Status distribution
+  // Status distribution with proper naming and colors
   const statusData = Object.entries(stats.statuses)
     .sort(([, a], [, b]) => b - a)
-    .map(([status, count]) => ({ status, count }));
+    .map(([status, count]) => ({
+      status,
+      count,
+      percentage: ((count / stats.totalCrimes) * 100).toFixed(1),
+      color: getStatusColor(status)
+    }));
 
 
   return (
@@ -157,9 +187,11 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
       </div>
 
       {/* Charts Section */}
+
+      {/* Top Crime Types and Crime Classification */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Crime Types */}
-        <div className="bg-white border rounded-lg p-6">
+        <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Crime Types</h3>
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={topCrimeTypes} layout="vertical" margin={{ top: 10, right: 20, left: 40, bottom: 10 }}>
@@ -183,53 +215,110 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
           </ResponsiveContainer>
         </div>
 
-        {/* Crime Against Distribution */}
-        <div className="bg-white border rounded-lg p-6">
+        {/* Crime Classification */}
+        <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Crime Classification</h3>
+          <div className="flex flex-col lg:flex-row items-center gap-6">
+            <div className="flex-shrink-0">
+              <ResponsiveContainer width={280} height={280}>
+                <PieChart>
+                  <Pie
+                    data={crimeAgainstData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {crimeAgainstData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => [value, 'Count']}
+                    contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }}
+                    labelStyle={{ color: '#111827' }}
+                    itemStyle={{ color: '#111827' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex-1 space-y-3">
+              {crimeAgainstData.map((entry, index) => (
+                <div key={`legend-${index}`} className="flex items-center gap-3">
+                  <div
+                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  ></div>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{entry.name}</div>
+                    <div className="text-sm text-gray-600">
+                      {entry.value.toLocaleString()} cases ({entry.percentage}%)
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Status Distribution and Weekly Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Status Distribution */}
-        <div className="bg-white border rounded-lg p-6">
+        <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Status Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={statusData.map(d => ({ ...d, percent: (d.count / stats.totalCrimes) * 100 }))}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={(props: { payload?: { status?: string; name?: string }; percent?: number; name?: string }) => {
-                  const status = props?.payload?.status ?? props?.name ?? '';
-                  const p = (props?.percent ?? 0) * 100;
-                  if (p < 4) return '';
-                  return `${status}: ${p.toFixed(1)}%`;
-                }}
-                outerRadius={80}
-                dataKey="count"
-              >
-                {statusData.map((entry, index) => (
-                  <Cell key={`status-cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value: number) => {
-                  const total = stats.totalCrimes || 1;
-                  const pct = (Number(value) / total) * 100;
-                  return [`${value} (${pct.toFixed(1)}%)`, 'Count'];
-                }}
-                contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }}
-                labelStyle={{ color: '#111827' }}
-                itemStyle={{ color: '#111827' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="flex flex-col lg:flex-row items-center gap-6">
+            <div className="flex-shrink-0">
+              <ResponsiveContainer width={280} height={280}>
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    dataKey="count"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`status-cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number, name, props) => {
+                      const percentage = props.payload?.percentage || '0';
+                      return [`${value} (${percentage}%)`, 'Count'];
+                    }}
+                    labelFormatter={(label) => `Status: ${label}`}
+                    contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }}
+                    labelStyle={{ color: '#111827' }}
+                    itemStyle={{ color: '#111827' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex-1 space-y-3">
+              {statusData.map((entry, index) => (
+                <div key={`legend-${index}`} className="flex items-center gap-3">
+                  <div
+                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: entry.color }}
+                  ></div>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{entry.status}</div>
+                    <div className="text-sm text-gray-600">
+                      {entry.count.toLocaleString()} cases ({entry.percentage}%)
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Weekly Trend */}
-        <div className="bg-white border rounded-lg p-6">
+        <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Crime Trend</h3>
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={weeklyTrendData}>
               <defs>
                 <linearGradient id="weeklyGradient" x1="0" y1="0" x2="0" y2="1">
@@ -250,50 +339,32 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
                 itemStyle={{ color: '#111827' }}
               />
               <Area type="monotone" dataKey="count" stroke="#1e40af" fill="url(#weeklyGradient)" strokeWidth={2} />
-              <Legend verticalAlign="top" height={24} wrapperStyle={{ fontSize: 12 }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={crimeAgainstData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percentage }) => `${name}: ${percentage}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {crimeAgainstData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value) => [value, 'Count']}
-                contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }}
-                labelStyle={{ color: '#111827' }}
-                itemStyle={{ color: '#111827' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
-      {/* District Breakdown and Daily Trend */}
+      {/* District Distribution and Daily Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* District Distribution */}
-        <div className="bg-white border rounded-lg p-6">
+        <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">District Distribution</h3>
           <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={districtData} layout="vertical" margin={{ top: 10, right: 20, left: 40, bottom: 10 }}>
+            <BarChart data={districtData} layout="vertical" margin={{ top: 10, right: 120, left: 60, bottom: 10 }}>
               <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
               <XAxis type="number" tick={{ fill: '#374151' }} />
-              <YAxis type="category" dataKey="district" width={120} tick={{ fill: '#374151', fontSize: 12 }} />
+              <YAxis
+                type="category"
+                dataKey="displayName"
+                width={160}
+                tick={{ fill: '#374151', fontSize: 11 }}
+              />
               <Tooltip
                 formatter={(value) => [value, 'Count']}
+                labelFormatter={(label) => {
+                  const item = districtData.find(d => d.displayName === label);
+                  return item ? `${item.districtName} (District ${item.district})` : label;
+                }}
                 contentStyle={{ borderRadius: 8, borderColor: '#e5e7eb' }}
                 labelStyle={{ color: '#111827' }}
                 itemStyle={{ color: '#111827' }}
@@ -303,7 +374,7 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   valueAccessor={(entry: any) => `${(entry.count ?? entry.value) as number} (${(entry.percentage ?? entry.payload?.percentage) as string}%)` }
                   position="right"
-                  style={{ fill: '#111827', fontSize: 12 }}
+                  style={{ fill: '#374151', fontSize: 11, fontWeight: 'bold' }}
                 />
               </Bar>
             </BarChart>
@@ -311,14 +382,14 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
         </div>
 
         {/* Daily Trend */}
-        <div className="bg-white border rounded-lg p-6">
+        <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Crime Trend</h3>
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={dailyTrendData}>
               <defs>
                 <linearGradient id="dailyGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.05} />
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0.05} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
@@ -342,16 +413,15 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
                 labelStyle={{ color: '#111827' }}
                 itemStyle={{ color: '#111827' }}
               />
-              <Area type="monotone" dataKey="count" stroke="#1e40af" fill="url(#dailyGradient)" strokeWidth={2} />
-              <Legend verticalAlign="top" height={24} wrapperStyle={{ fontSize: 12 }} />
+              <Area type="monotone" dataKey="count" stroke="#dc2626" fill="url(#dailyGradient)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Special Crime Categories */}
-      <div className="bg-white border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Special Crime Categories</h3>
+      <div className="bg-white border rounded-lg p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">Special Crime Categories</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           {Object.entries(stats.specialCrimes).map(([key, count]) => {
             const labels = {
@@ -364,10 +434,20 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
               victimShot: 'Victim Shot'
             };
 
+            const colors = {
+              domesticViolence: 'bg-rose-50 hover:bg-rose-100 border-rose-200',
+              gangRelated: 'bg-orange-50 hover:bg-orange-100 border-orange-200',
+              hateCrime: 'bg-purple-50 hover:bg-purple-100 border-purple-200',
+              transitRelated: 'bg-blue-50 hover:bg-blue-100 border-blue-200',
+              homelessVictim: 'bg-yellow-50 hover:bg-yellow-100 border-yellow-200',
+              homelessSuspect: 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200',
+              victimShot: 'bg-red-50 hover:bg-red-100 border-red-200'
+            };
+
             return (
-              <div key={key} className="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div key={key} className={`text-center p-4 rounded-lg border transition-colors ${colors[key as keyof typeof colors]}`}>
                 <div className="text-2xl font-bold text-gray-900">{count}</div>
-                <div className="text-xs text-gray-600 mt-1">{labels[key as keyof typeof labels]}</div>
+                <div className="text-xs text-gray-600 mt-2 font-medium">{labels[key as keyof typeof labels]}</div>
               </div>
             );
           })}
