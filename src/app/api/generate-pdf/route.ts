@@ -43,26 +43,45 @@ interface PDFRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('PDF generation started');
     const { crimeData, dateRange, summary }: PDFRequest = await request.json();
+    console.log('Request data parsed:', {
+      crimeDataLength: crimeData.length,
+      dateRange,
+      summaryKeys: Object.keys(summary)
+    });
 
-    // Generate charts
-    const trendsChart = await generateTrendsChart(crimeData);
-    const districtChart = await generateDistrictChart(summary.districtBreakdown);
+    // Temporarily disable charts due to ChartJSNodeCanvas compatibility issues
+    console.log('Skipping chart generation (temporarily disabled)');
+    const trendsChart = '';
+    const districtChart = '';
 
     // Generate HTML template
+    console.log('Generating HTML template...');
     const htmlContent = generateHTMLTemplate({
       crimeData,
       dateRange,
       summary,
-      trendsChart: trendsChart.toString('base64'),
-      districtChart: districtChart.toString('base64'),
+      trendsChart,
+      districtChart,
     });
+    console.log('HTML template generated');
 
     // Generate PDF using Puppeteer
+    console.log('Launching Puppeteer...');
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ]
     });
+    console.log('Puppeteer launched');
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
@@ -93,8 +112,16 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('PDF generation error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      name: error instanceof Error ? error.name : 'Unknown error type'
+    });
     return NextResponse.json(
-      { error: 'Failed to generate PDF' },
+      {
+        error: 'Failed to generate PDF',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -346,13 +373,17 @@ function generateHTMLTemplate(data: {
           </div>
         </div>
 
+        ${trendsChart ? `
         <div class="chart-container">
           <img src="data:image/png;base64,${trendsChart}" alt="Crime Trends Chart" />
         </div>
+        ` : '<div class="chart-container"><p style="text-align: center; color: #666;">Crime trends chart unavailable</p></div>'}
 
+        ${districtChart ? `
         <div class="chart-container">
           <img src="data:image/png;base64,${districtChart}" alt="District Distribution Chart" />
         </div>
+        ` : '<div class="chart-container"><p style="text-align: center; color: #666;">District chart unavailable</p></div>'}
 
         <h2 class="section-title">Top Crime Types</h2>
         <div class="top-crimes">

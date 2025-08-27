@@ -144,6 +144,8 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
 
   const handleExportPDF = async () => {
     try {
+      console.log('Starting PDF export...');
+
       // Prepare top crime types
       const topCrimeTypes = Object.entries(summaryStats.crimeTypes)
         .sort(([,a], [,b]) => b - a)
@@ -169,7 +171,14 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
         }
       };
 
+      console.log('PDF data prepared:', {
+        crimeDataLength: pdfData.crimeData.length,
+        dateRange: pdfData.dateRange,
+        summaryKeys: Object.keys(pdfData.summary)
+      });
+
       // Call the PDF generation API
+      console.log('Calling PDF API...');
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: {
@@ -178,12 +187,23 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
         body: JSON.stringify(pdfData),
       });
 
+      console.log('PDF API response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to generate PDF');
+        const errorData = await response.json();
+        console.error('PDF API error:', errorData);
+        throw new Error(`Failed to generate PDF: ${errorData.error || response.statusText}`);
       }
 
       // Download the PDF
+      console.log('Converting response to blob...');
       const blob = await response.blob();
+      console.log('Blob created:', { size: blob.size, type: blob.type });
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
@@ -193,9 +213,11 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+
+      console.log('PDF download initiated successfully');
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF report. Please try again.');
+      alert(`Failed to generate PDF report: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
