@@ -2,21 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import { format } from 'date-fns';
 
-// Dynamic import for ChartJSNodeCanvas to avoid build issues
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let chartJSNodeCanvas: any = null;
-
-async function getChartCanvas() {
-  if (!chartJSNodeCanvas) {
-    const { ChartJSNodeCanvas } = await import('chartjs-node-canvas');
-    chartJSNodeCanvas = new ChartJSNodeCanvas({
-      width: 800,
-      height: 400,
-      backgroundColour: 'white'
-    });
-  }
-  return chartJSNodeCanvas;
-}
+// Chart generation temporarily disabled - will be re-implemented with alternative solution
 
 interface CrimeData {
   date_rptd: string;
@@ -127,107 +113,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateTrendsChart(crimeData: CrimeData[]): Promise<Buffer> {
-  const canvas = await getChartCanvas();
-  // Group data by month
-  const monthlyData = crimeData.reduce((acc, crime) => {
-    const month = format(new Date(crime.date_rptd), 'yyyy-MM');
-    acc[month] = (acc[month] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const sortedMonths = Object.keys(monthlyData).sort();
-  const counts = sortedMonths.map(month => monthlyData[month]);
-
-  const configuration = {
-    type: 'line' as const,
-    data: {
-      labels: sortedMonths.map(month => format(new Date(month + '-01'), 'MMM yyyy')),
-      datasets: [{
-        label: 'Crime Incidents',
-        data: counts,
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Crime Trends Over Time',
-          font: { size: 16, weight: 'bold' as const }
-        },
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Number of Incidents'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Month'
-          }
-        }
-      }
-    }
-  };
-
-  return await canvas.renderToBuffer(configuration);
-}
-
-async function generateDistrictChart(districtData: Array<{ district: string; count: number }>): Promise<Buffer> {
-  const canvas = await getChartCanvas();
-  const configuration = {
-    type: 'bar' as const,
-    data: {
-      labels: districtData.map(d => `District ${d.district}`),
-      datasets: [{
-        label: 'Incidents',
-        data: districtData.map(d => d.count),
-        backgroundColor: [
-          '#ef4444', '#f97316', '#eab308', '#8b5cf6', 
-          '#3b82f6', '#22c55e', '#ec4899'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Incidents by District',
-          font: { size: 16, weight: 'bold' as const }
-        },
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Number of Incidents'
-          }
-        }
-      }
-    }
-  };
-
-  return await canvas.renderToBuffer(configuration);
-}
+// Chart generation functions temporarily removed
+// Will be re-implemented with alternative chart solution
 
 function generateHTMLTemplate(data: {
   crimeData: CrimeData[];

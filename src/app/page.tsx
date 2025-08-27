@@ -158,7 +158,7 @@ export default function Home() {
               {/* Description - condensed on mobile */}
               <p className="text-sm sm:text-base text-gray-700 sm:text-gray-800 mt-2 sm:mt-3 leading-relaxed">
                 <span className="sm:hidden">
-                  LAPD incident data for CHNC's Hollywood districts. Select dates to explore patterns.
+                  LAPD incident data for CHNC&apos;s Hollywood districts. Select dates to explore patterns.
                 </span>
                 <span className="hidden sm:inline">
                   This community dashboard shows incidents reported to LAPD for CHNC’s Hollywood districts. Pick a date range to explore patterns and view details.
