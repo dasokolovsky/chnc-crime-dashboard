@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
+
 import CrimeSummary from './CrimeSummary';
 import CrimeDataTable from './CrimeDataTable';
 
@@ -142,84 +142,7 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
     document.body.removeChild(link);
   };
 
-  const handleExportPDF = async () => {
-    try {
-      console.log('Starting PDF export...');
 
-      // Prepare top crime types
-      const topCrimeTypes = Object.entries(summaryStats.crimeTypes)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 10)
-        .map(([type, count]) => ({ type, count }));
-
-      // Prepare district breakdown
-      const districtBreakdown = Object.entries(summaryStats.districts)
-        .sort(([,a], [,b]) => b - a)
-        .map(([district, count]) => ({ district, count }));
-
-      // Prepare data for PDF generation
-      const pdfData = {
-        crimeData: data.data,
-        dateRange: {
-          start: data.dateRange.startDate,
-          end: data.dateRange.endDate
-        },
-        summary: {
-          totalIncidents: data.data.length,
-          topCrimeTypes: topCrimeTypes,
-          districtBreakdown: districtBreakdown
-        }
-      };
-
-      console.log('PDF data prepared:', {
-        crimeDataLength: pdfData.crimeData.length,
-        dateRange: pdfData.dateRange,
-        summaryKeys: Object.keys(pdfData.summary)
-      });
-
-      // Call the PDF generation API
-      console.log('Calling PDF API...');
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(pdfData),
-      });
-
-      console.log('PDF API response:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('PDF API error:', errorData);
-        throw new Error(`Failed to generate PDF: ${errorData.error || response.statusText}`);
-      }
-
-      // Download the PDF
-      console.log('Converting response to blob...');
-      const blob = await response.blob();
-      console.log('Blob created:', { size: blob.size, type: blob.type });
-
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `CHNC-Crime-Report-${data.dateRange.startDate}-to-${data.dateRange.endDate}.pdf`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      console.log('PDF download initiated successfully');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert(`Failed to generate PDF report: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -244,13 +167,7 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
             >
               Export CSV
             </button>
-            <button
-              onClick={handleExportPDF}
-              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] touch-manipulation"
-            >
-              <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-              Export PDF
-            </button>
+
           </div>
         </div>
       </div>
