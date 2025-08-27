@@ -50,52 +50,59 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedCrimeType, setSelectedCrimeType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
 
   // Get unique values for filters
-  const uniqueDistricts = useMemo(() => 
+  const uniqueDistricts = useMemo(() =>
     [...new Set(data.map(record => record.rpt_dist_no))].sort(),
     [data]
   );
 
-  const uniqueCrimeTypes = useMemo(() => 
+  const uniqueCrimeTypes = useMemo(() =>
     [...new Set(data.map(record => record.nibr_description))].sort(),
     [data]
   );
 
-  const uniqueStatuses = useMemo(() => 
+  const uniqueStatuses = useMemo(() =>
     [...new Set(data.map(record => record.status_desc))].sort(),
+    [data]
+  );
+
+  const uniqueLocations = useMemo(() =>
+    [...new Set(data.map(record => record.premis_desc))].sort(),
     [data]
   );
 
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
     const filtered = data.filter(record => {
-      const matchesSearch = !searchTerm || 
-        Object.values(record).some(value => 
+      const matchesSearch = !searchTerm ||
+        Object.values(record).some(value =>
           value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         );
-      
+
       const matchesDistrict = !selectedDistrict || record.rpt_dist_no === selectedDistrict;
       const matchesCrimeType = !selectedCrimeType || record.nibr_description === selectedCrimeType;
       const matchesStatus = !selectedStatus || record.status_desc === selectedStatus;
+      const matchesLocation = !selectedLocation || record.premis_desc === selectedLocation;
 
-      return matchesSearch && matchesDistrict && matchesCrimeType && matchesStatus;
+      return matchesSearch && matchesDistrict && matchesCrimeType && matchesStatus && matchesLocation;
     });
 
     // Sort data
     filtered.sort((a, b) => {
       const aValue = a[sortField] || '';
       const bValue = b[sortField] || '';
-      
+
       let comparison = 0;
       if (aValue < bValue) comparison = -1;
       if (aValue > bValue) comparison = 1;
-      
+
       return sortDirection === 'desc' ? -comparison : comparison;
     });
 
     return filtered;
-  }, [data, searchTerm, selectedDistrict, selectedCrimeType, selectedStatus, sortField, sortDirection]);
+  }, [data, searchTerm, selectedDistrict, selectedCrimeType, selectedStatus, selectedLocation, sortField, sortDirection]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedData.length / pageSize);
@@ -121,6 +128,7 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
     setSelectedDistrict('');
     setSelectedCrimeType('');
     setSelectedStatus('');
+    setSelectedLocation('');
     setCurrentPage(1);
   };
 
@@ -140,9 +148,9 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
     <div className="space-y-6">
       {/* Filters */}
       <div className="bg-gray-50 rounded-lg p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Search</label>
             <input
               type="text"
               value={searchTerm}
@@ -151,19 +159,19 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
                 setCurrentPage(1);
               }}
               placeholder="Search all fields..."
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900 placeholder:text-gray-600"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">District</label>
             <select
               value={selectedDistrict}
               onChange={(e) => {
                 setSelectedDistrict(e.target.value);
                 setCurrentPage(1);
               }}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
             >
               <option value="">All Districts</option>
               {uniqueDistricts.map(district => (
@@ -173,16 +181,18 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Crime Type</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Crime Type</label>
             <select
               value={selectedCrimeType}
               onChange={(e) => {
                 setSelectedCrimeType(e.target.value);
                 setCurrentPage(1);
               }}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
             >
               <option value="">All Crime Types</option>
+
+
               {uniqueCrimeTypes.map(type => (
                 <option key={type} value={type}>
                   {type.length > 50 ? type.substring(0, 50) + '...' : type}
@@ -192,14 +202,14 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Status</label>
             <select
               value={selectedStatus}
               onChange={(e) => {
                 setSelectedStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
             >
               <option value="">All Statuses</option>
               {uniqueStatuses.map(status => (
@@ -207,10 +217,27 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
               ))}
             </select>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Location</label>
+            <select
+              value={selectedLocation}
+              onChange={(e) => {
+                setSelectedLocation(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
+            >
+              <option value="">All Locations</option>
+              {uniqueLocations.map(loc => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-800">
             Showing {startIndex + 1}-{Math.min(startIndex + pageSize, filteredAndSortedData.length)} of {filteredAndSortedData.length} records
           </div>
           <button
@@ -226,45 +253,45 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
       <div className="bg-white border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('date_occ')}
                 >
                   Date <SortIcon field="date_occ" />
                 </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('time_occ')}
                 >
                   Time <SortIcon field="time_occ" />
                 </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('rpt_dist_no')}
                 >
                   District <SortIcon field="rpt_dist_no" />
                 </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('nibr_description')}
                 >
                   Crime Type <SortIcon field="nibr_description" />
                 </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('premis_desc')}
                 >
                   Location <SortIcon field="premis_desc" />
                 </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('status_desc')}
                 >
                   Status <SortIcon field="status_desc" />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Flags
                 </th>
               </tr>
@@ -293,7 +320,7 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      record.status_desc.includes('Cleared') 
+                      record.status_desc.includes('Cleared')
                         ? 'bg-green-100 text-green-800'
                         : record.status_desc.includes('Investigation')
                         ? 'bg-yellow-100 text-yellow-800'
@@ -377,7 +404,7 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
                   >
                     Previous
                   </button>
-                  
+
                   {/* Page numbers */}
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
@@ -395,7 +422,7 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
                       </button>
                     );
                   })}
-                  
+
                   <button
                     onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}

@@ -161,7 +161,7 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Crime Report</h2>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1 text-sm text-gray-800">
               {format(parseISO(data.dateRange.startDate), 'MMM dd, yyyy')} - {format(parseISO(data.dateRange.endDate), 'MMM dd, yyyy')}
               <span className="ml-2 font-semibold">{data.count} total incidents</span>
             </p>
@@ -186,27 +186,29 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
       {/* Tab Navigation */}
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-            <button
-              onClick={() => setActiveTab('summary')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'summary'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Summary Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab('details')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'details'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Detailed Data ({data.count} records)
-            </button>
+          <nav className="px-4 py-2" aria-label="Tabs">
+            <div className="inline-flex rounded-lg bg-gray-100 p-1">
+              <button
+                onClick={() => setActiveTab('summary')}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+                  activeTab === 'summary'
+                    ? 'bg-white text-blue-700 shadow'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                Summary
+              </button>
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`ml-1 px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+                  activeTab === 'details'
+                    ? 'bg-white text-blue-700 shadow'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                Data ({data.count})
+              </button>
+            </div>
           </nav>
         </div>
 

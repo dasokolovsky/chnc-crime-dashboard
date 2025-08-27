@@ -105,7 +105,7 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
       {/* Date Inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="start-date" className="block text-sm font-medium text-gray-900 mb-1">
             Start Date
           </label>
           <div className="relative">
@@ -120,7 +120,7 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
               maxDate={parseISO(availableRange.maxDate)}
               dateFormat="MMM dd, yyyy"
               placeholderText="Select start date"
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm pl-3 pr-10 py-2"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm pl-3 pr-10 py-2 text-gray-900 placeholder:text-gray-500"
               wrapperClassName="w-full"
               popperClassName="react-datepicker-popper"
               calendarClassName="react-datepicker-calendar"
@@ -129,7 +129,7 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
           </div>
         </div>
         <div>
-          <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="end-date" className="block text-sm font-medium text-gray-900 mb-1">
             End Date
           </label>
           <div className="relative">
@@ -144,7 +144,7 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
               maxDate={parseISO(availableRange.maxDate)}
               dateFormat="MMM dd, yyyy"
               placeholderText="Select end date"
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm pl-3 pr-10 py-2"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm pl-3 pr-10 py-2 text-gray-900 placeholder:text-gray-500"
               wrapperClassName="w-full"
               popperClassName="react-datepicker-popper"
               calendarClassName="react-datepicker-calendar"
@@ -166,35 +166,35 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
         <button
           type="button"
           onClick={() => setPresetRange(7)}
-          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="px-3 py-1.5 text-xs font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           Last 7 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(30)}
-          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
+          className="px-3 py-1.5 text-xs font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last 30 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(90)}
-          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
+          className="px-3 py-1.5 text-xs font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last 90 days
         </button>
         <button
           type="button"
           onClick={() => setPresetRange(365)}
-          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
+          className="px-3 py-1.5 text-xs font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200"
         >
           Last year
         </button>
       </div>
 
       {/* Available Range Info */}
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-gray-700">
         Available data: {format(parseISO(availableRange.minDate), 'MMM dd, yyyy')} - {format(parseISO(availableRange.maxDate), 'MMM dd, yyyy')}
       </div>
     </div>

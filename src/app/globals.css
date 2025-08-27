@@ -34,6 +34,15 @@ body {
   width: 100%;
 }
 
+/* Improve input text and placeholder readability */
+.react-datepicker__input-container input {
+  color: #111827; /* gray-900 */
+}
+.react-datepicker__input-container input::placeholder {
+  color: #6b7280; /* gray-500 */
+}
+
+
 .react-datepicker-popper {
   z-index: 50;
 }

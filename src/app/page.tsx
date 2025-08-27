@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { format, parseISO } from 'date-fns';
 import DateRangePicker from '@/components/DateRangePicker';
 import HollywoodMap from '@/components/HollywoodMap';
 import CrimeDashboard from '@/components/CrimeDashboard';
@@ -135,11 +137,12 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Hollywood Crime Data Dashboard
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Crime reporting for Central Hollywood Neighborhood Council districts
+              <div className="flex items-center gap-3">
+                <Image src="https://images.squarespace-cdn.com/content/v1/5d659dacea31cf0001a036b4/1605818683199-G7V1ULX6IKMNG1SKZQDF/chnc.png" alt="CHNC logo" width={40} height={40} className="rounded" />
+                <h1 className="text-3xl font-bold text-gray-900">Hollywood Crime Data Dashboard</h1>
+              </div>
+              <p className="mt-2 text-gray-800">
+                This community dashboard shows incidents reported to LAPD for CHNC’s Hollywood districts. Pick a date range to explore patterns and view details.
               </p>
             </div>
           </div>
@@ -167,6 +170,7 @@ export default function Home() {
             {/* Date Range Picker */}
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-3">Select Date Range</h3>
+              <p className="text-sm text-gray-700 mb-3">Source: LA City Open Data (LAPD NIBRS). Available: {availableDateRange ? `${format(parseISO(availableDateRange.minDate), 'MMM dd, yyyy')} – ${format(parseISO(availableDateRange.maxDate), 'MMM dd, yyyy')}` : '—'}</p>
               {availableDateRange ? (
                 <DateRangePicker
                   availableRange={availableDateRange}
@@ -186,7 +190,7 @@ export default function Home() {
           </div>
 
           {/* Generate Report Button */}
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-col items-center gap-3">
             <button
               onClick={handleGenerateReport}
               disabled={!selectedDateRange || loading}
@@ -201,6 +205,10 @@ export default function Home() {
                 'Generate Crime Report'
               )}
             </button>
+            <p className="text-xs text-gray-700 text-center max-w-2xl">
+              How to use: Choose a start and end date or a preset range, then click “Generate Crime Report” to view the summary and details below.
+              Data last updated: <span className="font-medium">{availableDateRange?.maxDate}</span>.
+            </p>
           </div>
         </div>
 
