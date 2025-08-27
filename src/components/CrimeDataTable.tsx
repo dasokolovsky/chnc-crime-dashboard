@@ -175,10 +175,11 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Search</label>
+            <label htmlFor="crime-search" className="block text-sm font-semibold text-gray-900 mb-2">Search</label>
             <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
               <input
+                id="crime-search"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => {
@@ -187,7 +188,11 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
                 }}
                 placeholder="Search all fields..."
                 className="block w-full pl-10 pr-3 py-2.5 rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:ring-2 focus:ring-opacity-20 sm:text-sm text-gray-900 placeholder:text-gray-500 bg-white transition-all duration-200"
+                aria-describedby="search-help"
               />
+              <div id="search-help" className="sr-only">
+                Search through all crime data fields including location, crime type, and dates
+              </div>
             </div>
           </div>
 
@@ -295,7 +300,7 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
       <div className="bg-white border rounded-lg overflow-hidden">
         {/* Mobile-friendly horizontal scroll with shadow indicators */}
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '800px' }}>
+          <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '800px' }} role="table" aria-label="Crime data table">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
                 <th

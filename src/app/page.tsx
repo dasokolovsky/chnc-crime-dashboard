@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
 // Icons imported but not used - keeping for potential future use
@@ -8,6 +9,9 @@ import DateRangePicker from '@/components/DateRangePicker';
 import HollywoodMap from '@/components/HollywoodMap';
 import CrimeDashboard from '@/components/CrimeDashboard';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ErrorMessage from '@/components/ErrorMessage';
+import LoadingState from '@/components/LoadingState';
+import { cachedFetch } from '@/utils/apiCache';
 
 interface DateRange {
   minDate: string;
@@ -54,47 +58,89 @@ interface CrimeData {
     endDate: string;
   };
   districts: string[];
+  error?: string;
 }
 
-export default function Home() {
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [availableDateRange, setAvailableDateRange] = useState<DateRange | null>(null);
   const [selectedDateRange, setSelectedDateRange] = useState<{start: string, end: string} | null>(null);
   const [crimeData, setCrimeData] = useState<CrimeData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Function to update URL with current state
+  const updateURL = useCallback((startDate: string, endDate: string) => {
+    const params = new URLSearchParams();
+    params.set('start', startDate);
+    params.set('end', endDate);
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [router]);
+
+  // Function to get date range from URL or default
+  const getInitialDateRange = useCallback((availableRange: DateRange) => {
+    const urlStart = searchParams.get('start');
+    const urlEnd = searchParams.get('end');
+
+    if (urlStart && urlEnd) {
+      // Validate URL dates are within available range
+      const startDate = new Date(urlStart);
+      const endDate = new Date(urlEnd);
+      const minDate = new Date(availableRange.minDate);
+      const maxDate = new Date(availableRange.maxDate);
+
+      if (startDate >= minDate && endDate <= maxDate && startDate <= endDate) {
+        return { start: urlStart, end: urlEnd };
+      }
+    }
+
+    // Default to last 30 days if no valid URL params
+    const endDate = availableRange.maxDate;
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 30);
+    return {
+      start: startDate.toISOString().split('T')[0],
+      end: endDate
+    };
+  }, [searchParams]);
 
   // Fetch available date range on component mount
   useEffect(() => {
     const fetchDateRange = async () => {
       try {
-        const response = await fetch('/api/date-range');
-        const data = await response.json();
+        // Cache date range for 1 hour since it doesn't change frequently
+        const data = await cachedFetch<{success: boolean, dateRange: DateRange}>('/api/date-range', undefined, undefined, 60 * 60 * 1000);
 
         if (data.success) {
           setAvailableDateRange(data.dateRange);
-          // Set default to last 30 days
-          const endDate = data.dateRange.maxDate;
-          const startDate = new Date(endDate);
-          startDate.setDate(startDate.getDate() - 30);
-          setSelectedDateRange({
-            start: startDate.toISOString().split('T')[0],
-            end: endDate
-          });
+          // Get initial date range from URL or use default
+          const initialRange = getInitialDateRange(data.dateRange);
+          setSelectedDateRange(initialRange);
+          // Update URL if using default values
+          if (!searchParams.get('start') || !searchParams.get('end')) {
+            updateURL(initialRange.start, initialRange.end);
+          }
         } else {
-          setError('Failed to load available date range');
+          setError('Unable to load available date range from the server. Please check your connection and try again.');
         }
       } catch (err) {
-        setError('Failed to connect to API');
+        setError('Cannot connect to the crime data service. Please check your internet connection and try again.');
         console.error('Date range fetch error:', err);
+      } finally {
+        setInitialLoading(false);
       }
     };
 
     fetchDateRange();
-  }, []);
+  }, [getInitialDateRange, searchParams, updateURL]);
 
   const handleDateRangeChange = (start: string, end: string) => {
     setSelectedDateRange({ start, end });
     setCrimeData(null); // Clear previous data
+    updateURL(start, end); // Update URL to reflect new date range
   };
 
   const handleGenerateReport = async () => {
@@ -104,7 +150,8 @@ export default function Home() {
     setError(null);
 
     try {
-      const response = await fetch('/api/crime-data', {
+      // Cache crime data for 10 minutes
+      const data = await cachedFetch<CrimeData>('/api/crime-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,22 +161,31 @@ export default function Home() {
           endDate: selectedDateRange.end,
           method: 'auto'
         }),
-      });
-
-      const data = await response.json();
+      }, undefined, 10 * 60 * 1000);
 
       if (data.success) {
         setCrimeData(data);
       } else {
-        setError(data.error || 'Failed to fetch crime data');
+        setError(data.error || 'Unable to retrieve crime data for the selected date range. The data may be temporarily unavailable.');
       }
     } catch (err) {
-      setError('Failed to generate report');
+      setError('Failed to generate the crime report. Please check your connection and try again.');
       console.error('Crime data fetch error:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Show initial loading state
+  if (initialLoading) {
+    return (
+      <LoadingState
+        fullScreen
+        message="Loading CHNC Crime Dashboard"
+        submessage="Fetching available data range..."
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -172,14 +228,19 @@ export default function Home() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Error</h3>
-                <div className="mt-2 text-sm text-red-700">{error}</div>
-              </div>
-            </div>
-          </div>
+          <ErrorMessage
+            type="error"
+            title="Unable to Load Data"
+            message={error}
+            onRetry={() => {
+              setError(null);
+              if (selectedDateRange) {
+                handleGenerateReport();
+              }
+            }}
+            onDismiss={() => setError(null)}
+            className="mb-6"
+          />
         )}
 
         {/* Controls Section */}
@@ -227,6 +288,8 @@ export default function Home() {
               onClick={handleGenerateReport}
               disabled={!selectedDateRange || loading}
               className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-600 min-h-[48px] touch-manipulation"
+              aria-describedby={!selectedDateRange ? "generate-report-help" : undefined}
+              aria-live="polite"
             >
               {loading ? (
                 <>
@@ -239,6 +302,11 @@ export default function Home() {
                 </>
               )}
             </button>
+            {!selectedDateRange && (
+              <p id="generate-report-help" className="mt-2 text-sm text-gray-600">
+                Please select a date range to generate a report
+              </p>
+            )}
           </div>
         </div>
 
@@ -248,5 +316,20 @@ export default function Home() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }

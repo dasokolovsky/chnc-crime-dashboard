@@ -120,6 +120,8 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
               wrapperClassName="w-full"
               popperClassName="react-datepicker-popper"
               calendarClassName="react-datepicker-calendar"
+              aria-describedby={error ? "date-range-error" : undefined}
+              aria-invalid={error ? "true" : "false"}
             />
             <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
           </div>
@@ -144,6 +146,8 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
               wrapperClassName="w-full"
               popperClassName="react-datepicker-popper"
               calendarClassName="react-datepicker-calendar"
+              aria-describedby={error ? "date-range-error" : undefined}
+              aria-invalid={error ? "true" : "false"}
             />
             <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
           </div>
@@ -152,14 +156,14 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
 
       {/* Error Message */}
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+        <div id="date-range-error" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3" role="alert">
           {error}
         </div>
       )}
 
       {/* Preset Buttons - responsive layout */}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-        <div className="grid grid-cols-2 sm:inline-flex rounded-md shadow-sm border border-gray-200 overflow-hidden gap-0">
+        <div className="grid grid-cols-2 sm:inline-flex rounded-md shadow-sm border border-gray-200 overflow-hidden gap-0" role="group" aria-label="Quick date range presets">
           <button
             type="button"
             onClick={() => setPresetRange(7)}
