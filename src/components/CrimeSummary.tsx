@@ -194,10 +194,16 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
         <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Crime Types</h3>
           <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={topCrimeTypes} layout="vertical" margin={{ top: 10, right: 20, left: 40, bottom: 10 }}>
+            <BarChart data={topCrimeTypes} layout="vertical" margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
               <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
               <XAxis type="number" tick={{ fill: '#374151' }} />
-              <YAxis type="category" dataKey="name" width={180} tick={{ fill: '#374151', fontSize: 12 }} />
+              <YAxis
+                type="category"
+                dataKey="name"
+                width={120}
+                tick={{ fill: '#374151', fontSize: 10 }}
+                interval={0}
+              />
               <Tooltip
                 formatter={(value) => [value, 'Count']}
                 labelFormatter={(label) => {
@@ -219,14 +225,14 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
         <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Crime Classification</h3>
           <div className="flex flex-col lg:flex-row items-center gap-6">
-            <div className="flex-shrink-0">
-              <ResponsiveContainer width={280} height={280}>
+            <div className="w-full lg:w-80 flex-shrink-0">
+              <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
                     data={crimeAgainstData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius="80%"
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -269,14 +275,14 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
         <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Status Distribution</h3>
           <div className="flex flex-col lg:flex-row items-center gap-6">
-            <div className="flex-shrink-0">
-              <ResponsiveContainer width={280} height={280}>
+            <div className="w-full lg:w-80 flex-shrink-0">
+              <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
                     data={statusData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius="80%"
                     dataKey="count"
                   >
                     {statusData.map((entry, index) => (
@@ -350,14 +356,15 @@ export default function CrimeSummary({ stats }: CrimeSummaryProps) {
         <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">District Distribution</h3>
           <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={districtData} layout="vertical" margin={{ top: 10, right: 120, left: 60, bottom: 10 }}>
+            <BarChart data={districtData} layout="vertical" margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
               <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
               <XAxis type="number" tick={{ fill: '#374151' }} />
               <YAxis
                 type="category"
                 dataKey="displayName"
-                width={160}
-                tick={{ fill: '#374151', fontSize: 11 }}
+                width={100}
+                tick={{ fill: '#374151', fontSize: 9 }}
+                interval={0}
               />
               <Tooltip
                 formatter={(value) => [value, 'Count']}
