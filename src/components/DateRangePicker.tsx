@@ -63,14 +63,8 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
       return;
     }
 
-    // Calculate date range in days
-    const diffTime = endDateObj.getTime() - startDateObj.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays > 365) {
-      setError('Date range cannot exceed 365 days');
-      return;
-    }
+    // Allow longer date ranges for historical analysis
+    // No maximum limit - users can analyze multi-year trends
 
     onChange(newStart, newEnd);
   };
@@ -94,10 +88,16 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
     const start = new Date(end);
     start.setDate(start.getDate() - days);
     const startStr = start.toISOString().split('T')[0];
-    
+
     setStartDate(startStr);
     setEndDate(end);
     validateAndUpdate(startStr, end);
+  };
+
+  const setFullRange = () => {
+    setStartDate(availableRange.minDate);
+    setEndDate(availableRange.maxDate);
+    validateAndUpdate(availableRange.minDate, availableRange.maxDate);
   };
 
   return (
@@ -161,36 +161,67 @@ export default function DateRangePicker({ availableRange, selectedRange, onChang
         </div>
       )}
 
-      {/* Preset Buttons - responsive layout */}
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-        <div className="grid grid-cols-2 sm:inline-flex rounded-md shadow-sm border border-gray-200 overflow-hidden gap-0">
+      {/* Preset Buttons - responsive layout with extended options */}
+      <div className="space-y-3">
+        <div className="text-xs font-medium text-gray-700 uppercase tracking-wide">Quick Select:</div>
+
+        {/* Short-term presets */}
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setPresetRange(7)}
-            className="px-3 py-2.5 text-xs sm:text-sm font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[44px] touch-manipulation"
+            className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
           >
-            Last 7 days
+            7 days
           </button>
           <button
             type="button"
             onClick={() => setPresetRange(30)}
-            className="px-3 py-2.5 text-xs sm:text-sm font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200 min-h-[44px] touch-manipulation"
+            className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
           >
-            Last 30 days
+            30 days
           </button>
           <button
             type="button"
             onClick={() => setPresetRange(90)}
-            className="px-3 py-2.5 text-xs sm:text-sm font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200 sm:border-t-0 min-h-[44px] touch-manipulation"
+            className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
           >
-            Last 90 days
+            90 days
           </button>
           <button
             type="button"
             onClick={() => setPresetRange(365)}
-            className="px-3 py-2.5 text-xs sm:text-sm font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-l border-gray-200 sm:border-t-0 min-h-[44px] touch-manipulation"
+            className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
           >
-            Last year
+            1 year
+          </button>
+          <button
+            type="button"
+            onClick={() => setPresetRange(730)}
+            className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
+          >
+            2 years
+          </button>
+          <button
+            type="button"
+            onClick={() => setPresetRange(1095)}
+            className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
+          >
+            3 years
+          </button>
+          <button
+            type="button"
+            onClick={() => setPresetRange(1825)}
+            className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
+          >
+            5 years
+          </button>
+          <button
+            type="button"
+            onClick={setFullRange}
+            className="px-3 py-2 text-xs font-medium text-white bg-emerald-600 border border-emerald-600 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[40px] touch-manipulation"
+          >
+            All Available
           </button>
         </div>
       </div>
