@@ -1,0 +1,33 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shield-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
+      <stop offset="100%" style="stop-color:#e5e7eb;stop-opacity:0.85" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <circle cx="96" cy="96" r="96" fill="url(#bg-gradient)"/>
+  
+  <!-- Shield shape for security/safety -->
+  <path d="M96 24L72 36V72C72 99 87 121.56 96 126C105 121.56 120 99 120 72V36L96 24Z" 
+        fill="url(#shield-gradient)" 
+        stroke="#1e40af" 
+        stroke-width="3"/>
+  
+  <!-- Chart bars inside shield for data visualization -->
+  <rect x="84" y="84" width="9" height="24" fill="#1e40af" rx="1.5"/>
+  <rect x="96" y="72" width="9" height="36" fill="#1e40af" rx="1.5"/>
+  <rect x="108" y="90" width="9" height="18" fill="#1e40af" rx="1.5"/>
+  
+  <!-- Small dots for data points -->
+  <circle cx="81" cy="96" r="4.5" fill="#3b82f6"/>
+  <circle cx="93" cy="84" r="4.5" fill="#3b82f6"/>
+  <circle cx="105" cy="78" r="4.5" fill="#3b82f6"/>
+  <circle cx="117" cy="99" r="4.5" fill="#3b82f6"/>
+</svg>

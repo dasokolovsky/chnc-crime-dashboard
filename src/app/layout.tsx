@@ -18,8 +18,21 @@ export const metadata: Metadata = {
     "Explore LAPD-reported incidents across CHNC’s Hollywood districts. Choose a date range, view trends, and download data. Updated from LA City Open Data.",
 
   icons: {
-    icon: "https://images.squarespace-cdn.com/content/v1/5d659dacea31cf0001a036b4/1605818683199-G7V1ULX6IKMNG1SKZQDF/chnc.png",
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      },
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+        sizes: '192x192',
+      },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/icon.svg',
   },
+  manifest: '/manifest.json',
   openGraph: {
     title: "CHNC Crime Dashboard — Hollywood LAPD Districts",
     description:
