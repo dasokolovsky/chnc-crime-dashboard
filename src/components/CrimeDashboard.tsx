@@ -224,25 +224,29 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Header with Export Options */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Crime Report</h2>
-            <p className="mt-1 text-sm text-gray-800">
-              {format(parseISO(data.dateRange.startDate), 'MMM dd, yyyy')} - {format(parseISO(data.dateRange.endDate), 'MMM dd, yyyy')}
-              <span className="ml-2 font-semibold">{data.count} total incidents</span>
-            </p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Crime Report</h2>
+            <div className="mt-1 text-sm text-gray-800">
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <span>{format(parseISO(data.dateRange.startDate), 'MMM dd, yyyy')} - {format(parseISO(data.dateRange.endDate), 'MMM dd, yyyy')}</span>
+                <span className="sm:ml-2 font-semibold text-emerald-600">{data.count} total incidents</span>
+              </div>
+            </div>
           </div>
-          <div className="mt-4 sm:mt-0 flex space-x-3">
+
+          {/* Export buttons - stack on mobile */}
+          <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] touch-manipulation"
             >
               Export CSV
             </button>
             <button
               onClick={handleExportPDF}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] touch-manipulation"
             >
               <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
               Export PDF
@@ -254,11 +258,11 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
       {/* Tab Navigation */}
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="border-b border-gray-200">
-          <nav className="px-4 py-2" aria-label="Tabs">
-            <div className="inline-flex rounded-lg bg-gray-100 p-1">
+          <nav className="px-4 py-3" aria-label="Tabs">
+            <div className="flex rounded-lg bg-gray-100 p-1 w-full sm:w-auto sm:inline-flex">
               <button
                 onClick={() => setActiveTab('summary')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+                className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150 min-h-[44px] touch-manipulation ${
                   activeTab === 'summary'
                     ? 'bg-white text-blue-700 shadow'
                     : 'text-gray-700 hover:text-gray-900'
@@ -268,13 +272,14 @@ export default function CrimeDashboard({ data }: CrimeDashboardProps) {
               </button>
               <button
                 onClick={() => setActiveTab('details')}
-                className={`ml-1 px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+                className={`flex-1 sm:flex-none ml-1 px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150 min-h-[44px] touch-manipulation ${
                   activeTab === 'details'
                     ? 'bg-white text-blue-700 shadow'
                     : 'text-gray-700 hover:text-gray-900'
                 }`}
               >
-                Data ({data.count})
+                <span className="sm:hidden">Data</span>
+                <span className="hidden sm:inline">Data ({data.count})</span>
               </button>
             </div>
           </nav>

@@ -230,44 +230,38 @@ export default function HollywoodMap() {
   }, [districtsData]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
       <div className="relative">
-        <div ref={mapContainer} className="w-full h-80 rounded-lg overflow-hidden shadow-sm border border-gray-200" />
+        <div ref={mapContainer} className="w-full h-64 sm:h-80 rounded-lg overflow-hidden shadow-sm border border-gray-200" />
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-2 gap-4 text-sm mt-4">
-        <div>
-          <h4 className="font-medium text-gray-900 mb-2">Districts Coverage</h4>
-          <div className="space-y-1">
-            {Object.entries(DISTRICT_NAMES).slice(0, 4).map(([district, name]) => (
-              <div key={district} className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full border border-white shadow-sm"
-                  style={{ backgroundColor: DISTRICT_COLORS[district] }}
-                />
-                <span className="text-gray-900">{district} - {name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div>
-          <div className="space-y-1 mt-6">
-            {Object.entries(DISTRICT_NAMES).slice(4).map(([district, name]) => (
-              <div key={district} className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full border border-white shadow-sm"
-                  style={{ backgroundColor: DISTRICT_COLORS[district] }}
-                />
-                <span className="text-gray-900">{district} - {name}</span>
-              </div>
-            ))}
-          </div>
+      <div className="mt-4">
+        <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">Districts Coverage</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+          {Object.entries(DISTRICT_NAMES).map(([district, name]) => (
+            <div key={district} className="flex items-center gap-2 py-1">
+              <div
+                className="w-3 h-3 rounded-full border border-white shadow-sm flex-shrink-0"
+                style={{ backgroundColor: DISTRICT_COLORS[district] }}
+              />
+              <span className="text-gray-900 truncate">
+                <span className="font-medium">{district}</span>
+                <span className="hidden sm:inline"> - {name}</span>
+                <span className="sm:hidden"> - {name.split(' ')[0]}</span>
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <p className="text-xs text-gray-700 mt-4">
-        All districts are within the Hollywood area (Area 6) of the LAPD. Blue boundary shows CHNC coverage area.
+      <p className="text-xs text-gray-600 mt-3 sm:mt-4 leading-relaxed">
+        <span className="sm:hidden">
+          Hollywood LAPD districts within CHNC area (blue boundary).
+        </span>
+        <span className="hidden sm:inline">
+          All districts are within the Hollywood area (Area 6) of the LAPD. Blue boundary shows CHNC coverage area.
+        </span>
       </p>
     </div>
   );

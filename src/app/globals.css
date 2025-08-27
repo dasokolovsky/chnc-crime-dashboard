@@ -23,6 +23,37 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Improve mobile scrolling */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Improve touch targets */
+  button, input, select, textarea {
+    min-height: 44px;
+  }
+
+  /* Better mobile table scrolling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 4px;
+  }
+
+  .scrollbar-track-gray-100::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
 }
 
 /* React DatePicker Custom Styling */
@@ -138,4 +169,36 @@ body {
 .react-datepicker__day--disabled:hover {
   background-color: transparent;
   color: #d1d5db;
+}
+
+/* Mobile DatePicker improvements */
+@media (max-width: 640px) {
+  .react-datepicker {
+    font-size: 14px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .react-datepicker__day {
+    width: 2.2rem;
+    line-height: 2.2rem;
+    font-size: 0.875rem;
+  }
+
+  .react-datepicker__day-name {
+    width: 2.2rem;
+    line-height: 2.2rem;
+  }
+
+  .react-datepicker__navigation {
+    top: 1rem;
+  }
+
+  .react-datepicker__navigation--previous {
+    left: 1rem;
+  }
+
+  .react-datepicker__navigation--next {
+    right: 1rem;
+  }
 }

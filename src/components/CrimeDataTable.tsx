@@ -293,47 +293,48 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
 
       {/* Table */}
       <div className="bg-white border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+        {/* Mobile-friendly horizontal scroll with shadow indicators */}
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '800px' }}>
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 min-w-[100px]"
                   onClick={() => handleSort('date_occ')}
                 >
                   Date <SortIcon field="date_occ" />
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 min-w-[80px]"
                   onClick={() => handleSort('time_occ')}
                 >
                   Time <SortIcon field="time_occ" />
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 min-w-[80px]"
                   onClick={() => handleSort('rpt_dist_no')}
                 >
                   District <SortIcon field="rpt_dist_no" />
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 min-w-[150px]"
                   onClick={() => handleSort('nibr_description')}
                 >
                   Crime Type <SortIcon field="nibr_description" />
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 min-w-[120px]"
                   onClick={() => handleSort('premis_desc')}
                 >
                   Location <SortIcon field="premis_desc" />
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 min-w-[100px]"
                   onClick={() => handleSort('status_desc')}
                 >
                   Status <SortIcon field="status_desc" />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider min-w-[80px]">
                   Flags
                 </th>
               </tr>
@@ -341,38 +342,43 @@ export default function CrimeDataTable({ data }: CrimeDataTableProps) {
             <tbody className="bg-white divide-y divide-gray-200">
               {paginatedData.map((record, index) => (
                 <tr key={record.uniquenibrno} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(parseISO(record.date_occ), 'MMM dd, yyyy')}
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                    <div className="sm:hidden">{format(parseISO(record.date_occ), 'MMM dd')}</div>
+                    <div className="hidden sm:block">{format(parseISO(record.date_occ), 'MMM dd, yyyy')}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
                     {formatTime(record.time_occ)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900">
                     {record.rpt_dist_no}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                    <div className="truncate" title={record.nibr_description}>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">
+                    <div className="truncate max-w-[120px] sm:max-w-xs" title={record.nibr_description}>
                       {record.nibr_description}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                    <div className="truncate" title={record.premis_desc}>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">
+                    <div className="truncate max-w-[100px] sm:max-w-xs" title={record.premis_desc}>
                       {record.premis_desc}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                    <span className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full ${
                       record.status_desc.includes('Cleared')
                         ? 'bg-green-100 text-green-800'
                         : record.status_desc.includes('Investigation')
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {record.status_desc}
+                      <span className="sm:hidden">
+                        {record.status_desc.includes('Cleared') ? 'Cleared' :
+                         record.status_desc.includes('Investigation') ? 'Invest.' : 'Open'}
+                      </span>
+                      <span className="hidden sm:inline">{record.status_desc}</span>
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex space-x-1">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                    <div className="flex flex-wrap gap-1">
                       {record.domestic_violence_crime === 'Yes' && (
                         <span className="inline-flex px-1 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded" title="Domestic Violence">
                           DV
