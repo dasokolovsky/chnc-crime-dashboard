@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { format, parseISO } from 'date-fns';
-import { ChartBarIcon, CalendarIcon, DocumentChartBarIcon } from '@heroicons/react/24/outline';
+// Icons imported but not used - keeping for potential future use
 import DateRangePicker from '@/components/DateRangePicker';
 import HollywoodMap from '@/components/HollywoodMap';
 import CrimeDashboard from '@/components/CrimeDashboard';

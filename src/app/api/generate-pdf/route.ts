@@ -1,21 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
-import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { format } from 'date-fns';
 
-// Chart.js configuration
-const chartJSNodeCanvas = new ChartJSNodeCanvas({ 
-  width: 800, 
-  height: 400,
-  backgroundColour: 'white'
-});
+// Dynamic import for ChartJSNodeCanvas to avoid build issues
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let chartJSNodeCanvas: any = null;
+
+async function getChartCanvas() {
+  if (!chartJSNodeCanvas) {
+    const { ChartJSNodeCanvas } = await import('chartjs-node-canvas');
+    chartJSNodeCanvas = new ChartJSNodeCanvas({
+      width: 800,
+      height: 400,
+      backgroundColour: 'white'
+    });
+  }
+  return chartJSNodeCanvas;
+}
 
 interface CrimeData {
   date_rptd: string;
   crm_cd_desc: string;
   area_name: string;
   rpt_dist_no: string;
-  [key: string]: any;
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+interface PDFSummary {
+  totalIncidents: number;
+  topCrimeTypes: Array<{ type: string; count: number }>;
+  districtBreakdown: Array<{ district: string; count: number }>;
 }
 
 interface PDFRequest {
@@ -24,11 +38,7 @@ interface PDFRequest {
     start: string;
     end: string;
   };
-  summary: {
-    totalIncidents: number;
-    topCrimeTypes: Array<{ type: string; count: number }>;
-    districtBreakdown: Array<{ district: string; count: number }>;
-  };
+  summary: PDFSummary;
 }
 
 export async function POST(request: NextRequest) {
@@ -70,8 +80,11 @@ export async function POST(request: NextRequest) {
 
     await browser.close();
 
+    // Convert buffer to Uint8Array for Response
+    const uint8Array = new Uint8Array(pdfBuffer);
+
     // Return PDF as response
-    return new NextResponse(pdfBuffer, {
+    return new Response(uint8Array, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="CHNC-Crime-Report-${format(new Date(), 'yyyy-MM-dd')}.pdf"`,
@@ -88,6 +101,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateTrendsChart(crimeData: CrimeData[]): Promise<Buffer> {
+  const canvas = await getChartCanvas();
   // Group data by month
   const monthlyData = crimeData.reduce((acc, crime) => {
     const month = format(new Date(crime.date_rptd), 'yyyy-MM');
@@ -118,7 +132,7 @@ async function generateTrendsChart(crimeData: CrimeData[]): Promise<Buffer> {
         title: {
           display: true,
           text: 'Crime Trends Over Time',
-          font: { size: 16, weight: 'bold' }
+          font: { size: 16, weight: 'bold' as const }
         },
         legend: {
           display: false
@@ -142,10 +156,11 @@ async function generateTrendsChart(crimeData: CrimeData[]): Promise<Buffer> {
     }
   };
 
-  return await chartJSNodeCanvas.renderToBuffer(configuration);
+  return await canvas.renderToBuffer(configuration);
 }
 
 async function generateDistrictChart(districtData: Array<{ district: string; count: number }>): Promise<Buffer> {
+  const canvas = await getChartCanvas();
   const configuration = {
     type: 'bar' as const,
     data: {
@@ -166,7 +181,7 @@ async function generateDistrictChart(districtData: Array<{ district: string; cou
         title: {
           display: true,
           text: 'Incidents by District',
-          font: { size: 16, weight: 'bold' }
+          font: { size: 16, weight: 'bold' as const }
         },
         legend: {
           display: false
@@ -184,17 +199,17 @@ async function generateDistrictChart(districtData: Array<{ district: string; cou
     }
   };
 
-  return await chartJSNodeCanvas.renderToBuffer(configuration);
+  return await canvas.renderToBuffer(configuration);
 }
 
 function generateHTMLTemplate(data: {
   crimeData: CrimeData[];
   dateRange: { start: string; end: string };
-  summary: any;
+  summary: PDFSummary;
   trendsChart: string;
   districtChart: string;
 }): string {
-  const { crimeData, dateRange, summary, trendsChart, districtChart } = data;
+  const { dateRange, summary, trendsChart, districtChart } = data;
   
   return `
     <!DOCTYPE html>
@@ -343,7 +358,7 @@ function generateHTMLTemplate(data: {
         <div class="top-crimes">
           <div class="crime-list">
             <h4 style="margin-top: 0;">Most Common Incidents</h4>
-            ${summary.topCrimeTypes.slice(0, 5).map((crime: any, index: number) => `
+            ${summary.topCrimeTypes.slice(0, 5).map((crime, index: number) => `
               <div class="crime-item">
                 <span>${index + 1}. ${crime.type}</span>
                 <strong>${crime.count}</strong>
@@ -352,7 +367,7 @@ function generateHTMLTemplate(data: {
           </div>
           <div class="crime-list">
             <h4 style="margin-top: 0;">District Breakdown</h4>
-            ${summary.districtBreakdown.slice(0, 5).map((district: any, index: number) => `
+            ${summary.districtBreakdown.slice(0, 5).map((district, index: number) => `
               <div class="crime-item">
                 <span>${index + 1}. District ${district.district}</span>
                 <strong>${district.count}</strong>
